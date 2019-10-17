@@ -1,0 +1,18 @@
+{
+  "name": "PayJarvis-API",
+  "version": "0.0.5",
+  "private": true,
+  "dependencies": {
+    "aws-sdk": "^2.548.0",
+    "express": "^4.17.1",
+    "formidable": "^1.2.1",
+    "i": "^0.3.6",
+    "mime-types": "^2.1.24",
+    "mongoose": "^5.7.4",
+    "npm": "^6.11.3",
+    "request": "^2.88.0"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
