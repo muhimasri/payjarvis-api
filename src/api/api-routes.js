@@ -28,11 +28,11 @@ router.route('/tickets')
     // .get(ticketController.index)
     .post(ticketController.new);
 
-// router.route('/tickets/:ticket_id')
-//     .get(ticketController.view)
-//     .patch(ticketController.update)
-//     .put(ticketController.update)
-//     .delete(ticketController.delete);
+router.route('/tickets/:ticketId')
+    .get(ticketController.view)
+    .patch(ticketController.update)
+    .put(ticketController.update)
+    // .delete(ticketController.delete);
 
 
 // Export API routes

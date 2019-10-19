@@ -158,33 +158,37 @@ exports.new = function (req, res) {
     // });
 };
 // Handle view ticket info
-// exports.view = function (req, res) {
-//     ticket.findById(req.params.ticket_id, function (err, ticket) {
-//         if (err)
-//             res.send(err);
-//         res.json({
-//             message: 'ticket details loading..',
-//             data: ticket
-//         });
-//     });
-// };
+exports.view = function (req, res) {
+    Ticket.findById(req.params.ticketId, function (err, ticket) {
+        if (err)
+            res.send(err);
+        res.json({
+            message: 'ticket details loading..',
+            data: {
+                administrativePenaltyAmount: ticket.administrativePenaltyAmount,
+                dateOfViolation: ticket.dateOfViolation,
+                imageUrl: ticket.imageUrl,
+                plateNumber: ticket.plateNumber,
+                violationNoticeNumber: ticket.violationNoticeNumber,
+                ticketId: ticket._id,
+                email: ''
+            }
+        });
+    });
+};
 // // Handle update ticket info
-// exports.update = function (req, res) {
-//     ticket.findById(req.params.ticket_id, function (err, ticket) {
-//         if (err)
-//             res.send(err);
-//         ticket.name = req.body.name ? req.body.name : ticket.name;
-// // save the ticket and check for errors
-//         ticket.save(function (err) {
-//             if (err)
-//                 res.json(err);
-//             res.json({
-//                 message: 'ticket Info updated',
-//                 data: ticket
-//             });
-//         });
-//     });
-// };
+exports.update = function (req, res) {
+    Ticket.findByIdAndUpdate(req.params.ticketId, {$set: {plateNumber: req.body.plateNumber}}, {new:true},
+        function(err,doc){
+
+        if (err)
+                res.json(err);
+            res.json({
+                message: 'ticket Info updated',
+                data: doc
+            });
+    });
+};
 // // Handle delete ticket
 // exports.delete = function (req, res) {
 //     ticket.remove({
