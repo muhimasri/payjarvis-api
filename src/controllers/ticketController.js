@@ -178,7 +178,19 @@ exports.view = function (req, res) {
 };
 // // Handle update ticket info
 exports.update = function (req, res) {
-    Ticket.findByIdAndUpdate(req.params.ticketId, {$set: {plateNumber: req.body.plateNumber}}, {new:true},
+    const info = {
+        administrativePenaltyAmount: true,
+        dateOfViolation: true,
+        plateNumber: true,
+        violationNoticeNumber: true
+    }
+    const updateObj = {};
+    for (const key in req.body) {
+        if (req.body[key] !== null && typeof req.body[key] !== 'undefined' && info[key]) {
+            updateObj[key] = req.body[key];
+        }
+    }
+    Ticket.findByIdAndUpdate(req.params.ticketId, {$set: updateObj}, {new:true},
         function(err,doc){
 
         if (err)

@@ -26,14 +26,27 @@ mongoose.connect(connectionString, {
   console.log(`DB Connection Error: ${err.message}`);
 });
 
-// var db = mongoose.connection;
-
-// if(!db){
-//   console.log("Error connecting db");
-// }
-// else {
-//   console.log("Db connected successfully")
-// }
+app.post('/webhooks/deliver', (req, res) => {
+  console.log(req.body);
+  res.status(200).end();
+});
+app.post('/webhooks/inbound', (req, res) => {
+    console.log(req.body);
+    const info = {
+        to: req.body.type === 'text' ? req.body.msisdn : req.body.from.number,
+        msg: ''
+    }
+    // if (req.body.text.toLowerCase().indexOf('yes') > -1) {
+    //     info.msg = port + ' ' + 'Yay!! Looking forward to being your friend but unfortunately there is nothing I can help you with at the moment.'; 
+    // } else if (req.body.text.toLowerCase().indexOf('no') > -1) {
+    //     info.msg = 'Ouch! Well, its your loss and also I think we would have not got along anyways.';
+    // } else {
+    //     info.msg = 'Sorry, didn\'t quite understand. Yes or No?';
+    // }
+    info.msg = 'Click on the link below to pay your ticket. http://teacherstudio.me/ticket-details .';
+    SendMessage(info);
+    res.status(200).end();
+  });
 
 
 app.get('/', (req, res) => res.send('Hello World with Express'));
