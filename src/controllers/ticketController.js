@@ -91,19 +91,29 @@ async function saveTicket(ticketInfo) {
     });
 }
 
-async function saveUser() {
+async function saveUser(phone) {
     return new Promise(resolve => {
         const newUser = new User();
+        if (phone !== null && typeof phone !== 'undefined') {
+            newUser.phone = phone;
+        }
         newUser.save((err, res) => {
             resolve(res.id);
         })
     });
 }
 
-async function processTicket(s3Params) {
+async function processTicket(s3Params, phone) {
     const s3Content = await s3Upload(s3Params);
     const documentContent = await documentExtract(s3Content);
-    documentContent.userId = await saveUser();
+    documentContent.userId = await saveUser(phone);
+    return await saveTicket(documentContent);
+}
+
+exports.createTicket = async function (s3Params, phone) {
+    const s3Content = await s3Upload(s3Params);
+    const documentContent = await documentExtract(s3Content);
+    documentContent.userId = await saveUser(phone);
     return await saveTicket(documentContent);
 }
 
@@ -111,7 +121,6 @@ async function processTicket(s3Params) {
 exports.new = function (req, res) {
     const form = new IncomingForm();
     let s3Params = {};
-    let imageUrl = '';
 
     form.on('file', (field, file) => {
         fileContent = fs.readFileSync(file.path);
@@ -171,7 +180,8 @@ exports.view = function (req, res) {
                 plateNumber: ticket.plateNumber,
                 violationNoticeNumber: ticket.violationNoticeNumber,
                 ticketId: ticket._id,
-                email: ''
+                email: '',
+                isPaid: false
             }
         });
     });
@@ -191,13 +201,21 @@ exports.update = function (req, res) {
         }
     }
     Ticket.findByIdAndUpdate(req.params.ticketId, {$set: updateObj}, {new:true},
-        function(err,doc){
+        function(err,ticket){
 
         if (err)
                 res.json(err);
             res.json({
                 message: 'ticket Info updated',
-                data: doc
+                data: { administrativePenaltyAmount: ticket.administrativePenaltyAmount,
+                    dateOfViolation: ticket.dateOfViolation,
+                    imageUrl: ticket.imageUrl,
+                    plateNumber: ticket.plateNumber,
+                    violationNoticeNumber: ticket.violationNoticeNumber,
+                    ticketId: ticket._id,
+                    email: '',
+                    isPaid: false
+                    }
             });
     });
 };
