@@ -22,6 +22,10 @@ const ticketSchema = mongoose.Schema({
         type: String,
         default: ''
     },
+    isPaid: {
+        type: Boolean,
+        default: false
+    },
     rawData: {
         type: Array,
         default: []

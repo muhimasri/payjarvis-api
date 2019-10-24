@@ -201,6 +201,19 @@ exports.update = function (req, res) {
             });
     });
 };
+
+exports.updatePayment = (ticketId) => {
+    Ticket.findByIdAndUpdate(ticketId, {$set: {isPaid: true}}, {new:true},
+        function(err,doc){
+
+        if (err)
+                res.json(err);
+            res.json({
+                message: 'ticket Info updated',
+                data: doc
+            });
+    });
+}
 // // Handle delete ticket
 // exports.delete = function (req, res) {
 //     ticket.remove({
