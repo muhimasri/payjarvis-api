@@ -68,6 +68,29 @@ app.post('/webhooks/inbound', (req, res) => {
     res.status(200).end();
   });
 
+  const stripe = require("stripe")("sk_test_vcIq251ToWrYVdE8bBJRLGYe"); 
+  app.post("/charge", async (req, res) => {
+    try {
+      let {status} = await stripe.charges.create({
+        amount: req.body.amount,
+        currency: "cad",
+        description: "An example charge",
+        source: req.body.token
+      });
+  
+      const Ticket = require('./src/models/ticketModel');
+      Ticket.findByIdAndUpdate(req.body.ticketId, {$set: {isPaid: true}}, {new:true},
+        function(err,doc){
+
+          res.json({status})
+    });
+      // res.json({status});
+    } catch (err) {
+      console.log(err);
+      res.status(500).end();
+    }
+  });
+
 
 app.get('/', (req, res) => res.send('Hello World with Express'));
 

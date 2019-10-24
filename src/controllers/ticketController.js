@@ -181,7 +181,7 @@ exports.view = function (req, res) {
                 violationNoticeNumber: ticket.violationNoticeNumber,
                 ticketId: ticket._id,
                 email: '',
-                isPaid: false
+                isPaid: ticket.isPaid
             }
         });
     });
