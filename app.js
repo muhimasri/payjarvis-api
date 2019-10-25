@@ -39,23 +39,23 @@ app.post('/webhooks/inbound', (req, res) => {
     }
 
     if (req.body.type !== 'text') {
-      const ticketController = require('./src/controllers/ticketController');
-      var request = require('request').defaults({ encoding: null });
-      request.get(req.body.message.content.image.url,
-      function (err, res, body) {
-          const s3Params = {
-            Bucket: 'livecords-dev',
-            Key: Date.now().toString() + '.jpg',
-            Body: body,
-            ContentType: 'image/jpeg',
-            ACL: 'public-read'
-        };
-        new Promise(resolve => {
-          resolve(ticketController.createTicket(s3Params, req.body.from.number))
-        }).then(data => {
-          info.msg = 'Click on the link below to pay your ticket. http://teacherstudio.me/ticket-details/' + data.id;
-        })
-      });
+      // const ticketController = require('./src/controllers/ticketController');
+      // var request = require('request').defaults({ encoding: null });
+      // request.get(req.body.message.content.image.url,
+      // function (err, res, body) {
+      //     const s3Params = {
+      //       Bucket: 'livecords-dev',
+      //       Key: Date.now().toString() + '.jpg',
+      //       Body: body,
+      //       ContentType: 'image/jpeg',
+      //       ACL: 'public-read'
+      //   };
+      //   new Promise(resolve => {
+      //     resolve(ticketController.createTicket(s3Params, req.body.from.number))
+      //   }).then(data => {
+      //     info.msg = 'Click on the link below to pay your ticket. http://teacherstudio.me/ticket-details/' + data.id;
+      //   })
+      // });
     }
     // if (req.body.text.toLowerCase().indexOf('yes') > -1) {
     //     info.msg = port + ' ' + 'Yay!! Looking forward to being your friend but unfortunately there is nothing I can help you with at the moment.'; 
@@ -71,18 +71,21 @@ app.post('/webhooks/inbound', (req, res) => {
   const stripe = require("stripe")("sk_test_vcIq251ToWrYVdE8bBJRLGYe"); 
   app.post("/charge", async (req, res) => {
     try {
-      let {status} = await stripe.charges.create({
+      let stripeResults = await stripe.charges.create({
         amount: req.body.amount,
         currency: "cad",
-        description: "An example charge",
+        metadata: {
+          ticketId: req.body.ticketId
+        },
+        description: "Parking Ticket Payment",
         source: req.body.token
       });
   
       const Ticket = require('./src/models/ticketModel');
-      Ticket.findByIdAndUpdate(req.body.ticketId, {$set: {isPaid: true}}, {new:true},
+      Ticket.findByIdAndUpdate(req.body.ticketId, {$set: {isPaid: true, paymentDetails: stripeResults}}, {new:true},
         function(err,doc){
 
-          res.json({status})
+          res.json('Success');
     });
       // res.json({status});
     } catch (err) {

@@ -30,6 +30,10 @@ const ticketSchema = mongoose.Schema({
         type: Array,
         default: []
     },
+    paymentDetails: {
+        type: Object,
+        default: {}
+    },
     userId: {
         type: String,
         default: ''
