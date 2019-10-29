@@ -26,9 +26,9 @@ const ticketSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    rawData: {
-        type: Array,
-        default: []
+    ocr: {
+        type: Object,
+        default: {}
     },
     paymentDetails: {
         type: Object,

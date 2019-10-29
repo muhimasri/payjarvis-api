@@ -58,7 +58,7 @@ async function documentExtract(content) {
                     Name: content.Key
                 }
             },
-            FeatureTypes: ['FORMS', 'TABLES']
+            FeatureTypes: ['FORMS']
         };
 
         textract.analyzeDocument(params, function (err, data) {
@@ -66,14 +66,26 @@ async function documentExtract(content) {
                 return resolve(err);
             } else {
                 let ticketInfo = new Ticket();
-                let rawData = data.Blocks.map(item => item.Text);
+                let rawData = data.Blocks.map(item => {
+                    if (item.BlockType.toLowerCase() === 'line' && item.Text !== null) {
+                        return item.Text;
+                    }
+                });
                 try {
-                    ticketInfo.dateOfViolation = rawData[14];
-                    ticketInfo.violationNoticeNumber = rawData[7];
-                    ticketInfo.plateNumber = rawData[20];
-                    ticketInfo.administrativePenaltyAmount = rawData[35];
+                    const {key_map, value_map, block_map} = get_kv_map(data.Blocks);
+
+                    // Get Key Value relationship
+                    const formData = get_kv_relationship(key_map, value_map, block_map)
+                    const startList = data.Blocks.filter(
+                        item => item.Geometry.BoundingBox.Left > 0.5
+                        && item.Geometry.BoundingBox.Top < 0.11
+                        && item.BlockType == 'LINE');
+                    ticketInfo.violationNoticeNumber = startList[startList.length-1].Text;
+                    ticketInfo.dateOfViolation = searchValue(formData, 'date of violation');
+                    ticketInfo.plateNumber = searchValue(formData, 'plate');
+                    ticketInfo.administrativePenaltyAmount = searchValue(formData, 'amount');
                     ticketInfo.imageUrl = content.Location;
-                    ticketInfo.rawData = rawData
+                    ticketInfo.ocr = {formData, rawData};
                 } catch (err) {
                     // ticketInfo = {};
                 }
@@ -83,6 +95,79 @@ async function documentExtract(content) {
     });
 }
 
+function searchValue(form, word) {
+    for (const key in form) {
+        if (key.toLowerCase().indexOf(word) > -1) {
+            return form[key];
+        }
+    }
+    return '';
+}
+
+function get_kv_map(blocks) {
+    // get key and value maps
+    const key_map = {};
+    const value_map = {};
+    const block_map = {};
+    for (const block of blocks){
+        const block_id = block['Id'];
+        block_map[block_id] = block;
+        if (block['BlockType'] == "KEY_VALUE_SET") {
+            if (block['EntityTypes'].includes('KEY'))
+                key_map[block_id] = block;
+            else
+                value_map[block_id] = block;
+            }
+    }
+    return {key_map, value_map, block_map};
+}
+
+function get_kv_relationship(key_map, value_map, block_map) {
+    const kvs = {}
+    for (const key_block in key_map) {
+        const value_block = find_value_block(key_map[key_block], value_map)
+        let key = get_text(key_map[key_block], block_map)
+        const val = get_text(value_block, block_map)
+        if (key.indexOf('.') > -1) {
+            key = key.split('.').join('');
+        }
+        kvs[key] = val;
+    }
+    return kvs
+}
+
+function get_text(result, blocks_map) {
+    let text = '';
+    if (result['Relationships']) {
+        for (const relationship of result['Relationships']){
+            if (relationship['Type'] == 'CHILD') {
+                for (const child_id of relationship['Ids']) {
+                    const word = blocks_map[child_id]
+                    if (word['BlockType'] == 'WORD') {
+                        text = text + word['Text'] + ' ';
+                    }
+                    if (word['BlockType'] == 'SELECTION_ELEMENT') {
+                        if (word['SelectionStatus'] == 'SELECTED'){
+                            text = text + 'X ';
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return text
+}
+
+function find_value_block(key_block, value_map) {
+    for (const relationship of key_block['Relationships']) {
+        if (relationship['Type'] == 'VALUE') {
+            for (const value_id of relationship['Ids']) {
+                value_block = value_map[value_id];
+            }
+        }
+    }
+    return value_block
+}
 async function saveTicket(ticketInfo) {
     return new Promise(resolve => {
         ticketInfo.save((err, res) => {
