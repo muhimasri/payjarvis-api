@@ -44,7 +44,7 @@ app.post('/webhooks/deliver', (req, res) => {
   res.status(200).end();
 });
 app.post('/webhooks/inbound', (req, res) => {
-    console.log(req.body);
+    console.log(req.body);  
     const info = {
         to: req.body.type === 'text' ? req.body.msisdn : req.body.from.number,
         msg: ''
@@ -80,6 +80,20 @@ app.post('/webhooks/inbound', (req, res) => {
     res.status(200).end();
   });
 
+  function sendMessage() {
+    const accountSid = 'ACf7732ee502fa7f4d27120927f0d8857a';
+    const authToken = 'e0240d7a4475c858a2444f6603e4a855';
+    const client = require('twilio')(accountSid, authToken);
+
+    client.messages
+      .create({
+        body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
+        from: '+16475575147',
+        to: '+14168048502'
+      })
+      .then(message => console.log(message.sid));
+  }
+
   const stripe = require("stripe")("sk_test_vcIq251ToWrYVdE8bBJRLGYe"); 
   app.post("/charge", async (req, res) => {
     try {
@@ -114,4 +128,5 @@ app.use('/api', apiRoutes);
 // Launch app to listen to specified port
 app.listen(port, function () {
     console.log("Running RestHub on port " + port);
+    sendMessage();
 });

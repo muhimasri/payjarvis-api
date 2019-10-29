@@ -12,7 +12,8 @@
     "mongoose": "^5.7.4",
     "npm": "^6.11.3",
     "request": "^2.88.0",
-    "stripe": "^7.10.0"
+    "stripe": "^7.10.0",
+    "twilio": "^3.36.0"
   },
   "scripts": {
     "start": "node app.js"
