@@ -27,6 +27,18 @@ mongoose.connect(connectionString, {
   console.log(`DB Connection Error: ${err.message}`);
 });
 
+app.post('/twilio/request', (req, res) => {
+  console.log(req.body);
+})
+
+app.post('/twilio/fallback', (req, res) => {
+  console.log(req.body);
+})
+
+app.post('/twilio/callback', (req, res) => {
+  console.log(req.body);
+})
+
 app.post('/webhooks/deliver', (req, res) => {
   console.log(req.body);
   res.status(200).end();
