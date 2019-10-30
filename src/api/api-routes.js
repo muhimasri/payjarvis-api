@@ -35,5 +35,15 @@ router.route('/tickets/:ticketId')
     // .delete(ticketController.delete);
 
 
+// Import message controller
+const messageController = require('../controllers/messageController');
+// message routes
+router.route('/messages/inbound/request')
+    .post(messageController.inboundRequest);
+
+router.route('/messages/outbound/callback')
+    .post(messageController.outboundCallback);
+
+
 // Export API routes
 module.exports = router;

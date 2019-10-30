@@ -27,18 +27,6 @@ mongoose.connect(connectionString, {
   console.log(`DB Connection Error: ${err.message}`);
 });
 
-app.post('/twilio/request', (req, res) => {
-  console.log(req.body);
-})
-
-app.post('/twilio/fallback', (req, res) => {
-  console.log(req.body);
-})
-
-app.post('/twilio/callback', (req, res) => {
-  console.log(req.body);
-})
-
 app.post('/webhooks/deliver', (req, res) => {
   console.log(req.body);
   res.status(200).end();
@@ -128,5 +116,5 @@ app.use('/api', apiRoutes);
 // Launch app to listen to specified port
 app.listen(port, function () {
     console.log("Running RestHub on port " + port);
-    sendMessage();
+    // sendMessage();
 });
