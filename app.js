@@ -5,6 +5,9 @@ const app = express();
 const mongoose = require('mongoose');
 const port = process.env.PORT || 3000;
 
+const config = require('config');
+
+
 let apiRoutes = require("./src/api/api-routes");
 
 app.use(bodyParser.json())
@@ -17,8 +20,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-const connectionString = 'mongodb+srv://muhi:muhiatlasadmin@cluster0-qyxst.mongodb.net/PayJarvis?retryWrites=true&w=majority';
-mongoose.connect(connectionString, {
+mongoose.connect(config.db.connectionString, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 })
@@ -27,62 +29,7 @@ mongoose.connect(connectionString, {
   console.log(`DB Connection Error: ${err.message}`);
 });
 
-app.post('/webhooks/deliver', (req, res) => {
-  console.log(req.body);
-  res.status(200).end();
-});
-app.post('/webhooks/inbound', (req, res) => {
-    console.log(req.body);  
-    const info = {
-        to: req.body.type === 'text' ? req.body.msisdn : req.body.from.number,
-        msg: ''
-    }
-
-    if (req.body.type !== 'text') {
-      // const ticketController = require('./src/controllers/ticketController');
-      // var request = require('request').defaults({ encoding: null });
-      // request.get(req.body.message.content.image.url,
-      // function (err, res, body) {
-      //     const s3Params = {
-      //       Bucket: 'livecords-dev',
-      //       Key: Date.now().toString() + '.jpg',
-      //       Body: body,
-      //       ContentType: 'image/jpeg',
-      //       ACL: 'public-read'
-      //   };
-      //   new Promise(resolve => {
-      //     resolve(ticketController.createTicket(s3Params, req.body.from.number))
-      //   }).then(data => {
-      //     info.msg = 'Click on the link below to pay your ticket. http://teacherstudio.me/ticket-details/' + data.id;
-      //   })
-      // });
-    }
-    // if (req.body.text.toLowerCase().indexOf('yes') > -1) {
-    //     info.msg = port + ' ' + 'Yay!! Looking forward to being your friend but unfortunately there is nothing I can help you with at the moment.'; 
-    // } else if (req.body.text.toLowerCase().indexOf('no') > -1) {
-    //     info.msg = 'Ouch! Well, its your loss and also I think we would have not got along anyways.';
-    // } else {
-    //     info.msg = 'Sorry, didn\'t quite understand. Yes or No?';
-    // }
-    // SendMessage(info);
-    res.status(200).end();
-  });
-
-  function sendMessage() {
-    const accountSid = 'ACf7732ee502fa7f4d27120927f0d8857a';
-    const authToken = 'e0240d7a4475c858a2444f6603e4a855';
-    const client = require('twilio')(accountSid, authToken);
-
-    client.messages
-      .create({
-        body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
-        from: '+16475575147',
-        to: '+14168048502'
-      })
-      .then(message => console.log(message.sid));
-  }
-
-  const stripe = require("stripe")("sk_test_vcIq251ToWrYVdE8bBJRLGYe"); 
+  const stripe = require("stripe")(config.stripe.secretKey); 
   app.post("/charge", async (req, res) => {
     try {
       let stripeResults = await stripe.charges.create({
