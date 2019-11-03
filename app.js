@@ -33,7 +33,7 @@ mongoose.connect(config.db.connectionString, {
   app.post("/charge", async (req, res) => {
     try {
       let stripeResults = await stripe.charges.create({
-        amount: req.body.amount,
+        amount: req.body.amount * 100,
         currency: "cad",
         metadata: {
           ticketId: req.body.ticketId

@@ -15,8 +15,8 @@ const ticketSchema = mongoose.Schema({
         default: ''
     },
     administrativePenaltyAmount: {
-        type: String,
-        default: ''
+        type: Number,
+        default: 0
     },
     imageUrl: {
         type: String,

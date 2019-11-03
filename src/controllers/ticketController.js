@@ -3,6 +3,7 @@ const fs = require('fs');
 const mime = require('mime-types');
 const TicketService = require('../services/ticketService');
 const Ticket = require('../models/ticketModel');
+var moment = require('moment');
 
 // Handle index actions
 exports.index = (req, res) => {
@@ -46,7 +47,7 @@ exports.new = function (req, res) {
             return res.json({
                 message: 'File Uploaded Successfully',
                 data: {
-                    administrativePenaltyAmount: data.administrativePenaltyAmount,
+                    administrativePenaltyAmount: formatNumber(data.administrativePenaltyAmount),
                     dateOfViolation: data.dateOfViolation,
                     imageUrl: data.imageUrl,
                     plateNumber: data.plateNumber,
@@ -61,23 +62,34 @@ exports.new = function (req, res) {
 // Handle view ticket info
 exports.view = function (req, res) {
     Ticket.findById(req.params.ticketId, function (err, ticket) {
+        moment()
         if (err)
             res.send(err);
         res.json({
-            message: 'ticket details loading..',
+            success: 'ticket details loading..',
             data: {
-                administrativePenaltyAmount: ticket.administrativePenaltyAmount,
+                administrativePenaltyAmount: formatNumber(ticket.administrativePenaltyAmount),
                 dateOfViolation: ticket.dateOfViolation,
                 imageUrl: ticket.imageUrl,
                 plateNumber: ticket.plateNumber,
                 violationNoticeNumber: ticket.violationNoticeNumber,
                 ticketId: ticket._id,
                 email: '',
-                isPaid: ticket.isPaid
+                isPaid: ticket.isPaid,
+                paidDate: ticket.paymentDetails ? moment(new Date(ticket.paymentDetails.created * 1000))
+                .format('MMMM Do YYYY') : null,
+                paidAmount: ticket.paymentDetails ? Number(ticket.paymentDetails.amount).toFixed(2) : null
             }
         });
     });
 };
+
+function formatNumber(amount) {
+    if (!isNaN(Number(amount))) {
+        return Number(amount).toFixed(2);
+    }
+    return 0;
+}
 // // Handle update ticket info
 exports.update = function (req, res) {
     const info = {
