@@ -49,7 +49,7 @@ exports.view = function (req, res) {
 exports.update = function (req, res) {
     User.findByIdAndUpdate(req.params.userId, {$set: {subscribed: req.body.subscribed}}, {new:true},
         (err,doc) => {
-          res.json(data);
+          res.json(doc);
       });
 };
 // Handle delete user

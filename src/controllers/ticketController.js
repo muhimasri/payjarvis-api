@@ -78,7 +78,8 @@ exports.view = function (req, res) {
                 isPaid: ticket.isPaid,
                 paidDate: ticket.paymentDetails ? moment(new Date(ticket.paymentDetails.created * 1000))
                 .format('MMMM Do YYYY') : null,
-                paidAmount: ticket.paymentDetails ? Number(ticket.paymentDetails.amount/100).toFixed(2) : null
+                paidAmount: ticket.paymentDetails ? Number(ticket.paymentDetails.amount/100).toFixed(2) : null,
+                userId: ticket.userId
             }
         });
     });
