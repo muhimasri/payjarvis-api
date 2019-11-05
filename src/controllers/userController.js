@@ -47,20 +47,10 @@ exports.view = function (req, res) {
 };
 // Handle update user info
 exports.update = function (req, res) {
-    user.findById(req.params.user_id, function (err, user) {
-        if (err)
-            res.send(err);
-        user.name = req.body.name ? req.body.name : user.name;
-// save the user and check for errors
-        user.save(function (err) {
-            if (err)
-                res.json(err);
-            res.json({
-                message: 'user Info updated',
-                data: user
-            });
-        });
-    });
+    User.findByIdAndUpdate(req.params.userId, {$set: {subscribed: req.body.subscribed}}, {new:true},
+        (err,doc) => {
+          res.json(data);
+      });
 };
 // Handle delete user
 exports.delete = function (req, res) {

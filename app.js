@@ -42,10 +42,12 @@ mongoose.connect(config.db.connectionString, {
         source: req.body.token
       });
 
-      const updatedTicket = updateTicket(req.body.ticketId, stripeResults);
+      const updatedTicket = await updateTicket(req.body.ticketId, stripeResults);
       const User = require('./src/models/userModel');
-      User.findByIdAndUpdate(updatedTicket.userId, {$set: {email: req.body.email}});
-      res.json('Success');
+      User.findByIdAndUpdate(updatedTicket.userId, {$set: {email: req.body.email}}, {new:true},
+        (err,doc) => {
+          res.json('Success');
+      });
       // res.json({status});
     } catch (err) {
       console.log(err);
@@ -55,8 +57,8 @@ mongoose.connect(config.db.connectionString, {
 
   async function updateTicket(ticketId, paymentDetails) {
     const Ticket = require('./src/models/ticketModel');
-    await new Promise(resolve => {
-      Ticket.findByIdAndUpdate(req.body.ticketId, {$set: {isPaid: true, paymentDetails}}, {new:true},
+    return new Promise(resolve => {
+      Ticket.findByIdAndUpdate(ticketId, {$set: {isPaid: true, paymentDetails}}, {new:true},
         (err,doc) => {
           resolve(doc);
       });

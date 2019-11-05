@@ -15,7 +15,7 @@ router.route('/users')
     .get(userController.index)
     .post(userController.new);
 
-router.route('/users/:user_id')
+router.route('/users/:userId')
     .get(userController.view)
     .patch(userController.update)
     .put(userController.update)
