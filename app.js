@@ -41,19 +41,27 @@ mongoose.connect(config.db.connectionString, {
         description: "Parking Ticket Payment",
         source: req.body.token
       });
-  
-      const Ticket = require('./src/models/ticketModel');
-      Ticket.findByIdAndUpdate(req.body.ticketId, {$set: {isPaid: true, paymentDetails: stripeResults}}, {new:true},
-        function(err,doc){
 
-          res.json('Success');
-    });
+      const updatedTicket = updateTicket(req.body.ticketId, stripeResults);
+      const User = require('./src/models/userModel');
+      User.findByIdAndUpdate(updatedTicket.userId, {$set: {email: req.body.email}});
+      res.json('Success');
       // res.json({status});
     } catch (err) {
       console.log(err);
       res.status(500).end();
     }
   });
+
+  async function updateTicket(ticketId, paymentDetails) {
+    const Ticket = require('./src/models/ticketModel');
+    await new Promise(resolve => {
+      Ticket.findByIdAndUpdate(req.body.ticketId, {$set: {isPaid: true, paymentDetails}}, {new:true},
+        (err,doc) => {
+          resolve(doc);
+      });
+    });
+  }
 
 
 app.get('/', (req, res) => res.send('Hello World with Express'));
