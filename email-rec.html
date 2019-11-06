@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Receipt</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: \'Roboto\', sans-serif;
+
+        }
+        
+        h3.site--outer-titme {
+            text-align: center;
+            padding: 10px 10px 0 10px;
+            font-weight: normal;
+            text-transform: uppercase;
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .cotainer-inner {
+            width: 100%;
+            margin: 15px auto;
+            max-width: 450px;
+            box-shadow: 0px 0px 6px -4px #000;
+            padding: 15px;
+        }
+        
+        .cotainer-inner img.main-img {
+            width: 100%;
+            max-width: 240px;
+            margin: auto;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .detail-data.payment-title h4 {
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        h4.site--main {
+            font-weight: 400;
+            color: #02acb7;
+            font-size: 24px;
+        }
+        
+        .payment-details {
+            width:100%;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(27, 53, 53, 0.1);
+            padding-top: 20px;
+        }
+        
+        .payment-details tr {
+            color: #1B3535;
+            font-size: 14px;
+            padding-bottom: 10px;
+            letter-spacing: 0.02em;
+            height: 32px;
+        }
+        
+        .payment-details tr td:nth-child(1) {
+            color: rgba(27, 53, 53, 0.4);
+        }
+
+        .payment-details tr td:nth-child(2) {
+            text-align: right;
+        }
+        
+        .border-0 {
+			border: 0 !important;
+		}
+
+		.cantainer-footer {
+			text-align: center;
+			margin-top: 15px;
+		}
+
+		.cantainer-footer p {
+			color: rgba(27,53,53,0.4);
+			margin-bottom: 5px;
+		}
+
+		.condition-link a {
+			display: inline-block;
+			text-decoration: none;
+			padding: 1px 10px;
+			border-right: 1px solid;
+			color: rgba(0,170,183,0.702);
+		}
+    
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <h3 class="site--outer-titme">Your Parking Ticket Butler </h3>
+        <div class="cotainer-inner">
+            <div class="detail-data payment-title"><img src="images/email.png" class="main-img">
+                <h4 class="site--main">Paid Receipt</h4>
+                <table class="payment-details">
+                        <tr> <td> Violation Notice Number </td><td>PB465465</td></tr>
+                        <tr> <td> Payment Amount </td><td>$12.00</td></tr>
+                        <tr> <td> Payment Date </td><td>13 September 2019</td></tr>
+                        <tr> <td> Referece Number </td><td>4564654</td></tr>
+                </table>
+                <table class="payment-details">
+                    <tr> <td> Administrative Penalty </td><td>$50.00</td></tr>
+                        <tr> <td> Address Search Fee </td><td>$12.00</td></tr>
+                        <tr> <td> Late Payment Fee </td><td>$25.00</td></tr>
+                        <tr> <td> Service Charge </td><td>$8.23</td></tr>
+                </table>
+                <table class="payment-details">
+                    <tr><td>Total</td><td>$00.00</td></tr>
+                </table>
+            </div>
+            <div class="cantainer-footer">
+                <p>Made in Toronto by Onebill</p>
+                <div class="condition-link"><a href="#">Privacy &amp; Terms</a><a href="#">Contact Us</a></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
