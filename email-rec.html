@@ -12,6 +12,10 @@
             margin: 0;
             padding: 0;
         }
+
+        html {
+            background: #f6f6f6;
+        }
         
         body {
             font-family: \'Roboto\', sans-serif;
@@ -20,10 +24,10 @@
         
         h3.site--outer-titme {
             text-align: center;
-            padding: 10px 10px 0 10px;
+            padding: 40px 10px 17px 10px;
             font-weight: normal;
             text-transform: uppercase;
-            color: #999;
+            color: #1B3535;
             font-size: 16px;
         }
         
@@ -31,8 +35,10 @@
             width: 100%;
             margin: 15px auto;
             max-width: 450px;
-            box-shadow: 0px 0px 6px -4px #000;
-            padding: 15px;
+            /* box-shadow: 0px 15px 30px rgba(0,0,0,0.16); */
+            padding: 15px 0;
+            background: #fff;
+            /* border-radius: 20px; */
         }
         
         .cotainer-inner img.main-img {
@@ -58,7 +64,7 @@
             width:100%;
             padding-bottom: 5px;
             border-bottom: 1px solid rgba(27, 53, 53, 0.1);
-            padding-top: 20px;
+            padding: 15px;
         }
         
         .payment-details tr {
@@ -69,11 +75,11 @@
             height: 32px;
         }
         
-        .payment-details tr td:nth-child(1) {
+        .td-1 {
             color: rgba(27, 53, 53, 0.4);
         }
 
-        .payment-details tr td:nth-child(2) {
+        .td-2 {
             text-align: right;
         }
         
@@ -84,6 +90,7 @@
 		.cantainer-footer {
 			text-align: center;
 			margin-top: 15px;
+            font-size: 14px;
 		}
 
 		.cantainer-footer p {
@@ -94,10 +101,15 @@
 		.condition-link a {
 			display: inline-block;
 			text-decoration: none;
-			padding: 1px 10px;
-			border-right: 1px solid;
+			padding: 2px 9px 0 4px;
 			color: rgba(0,170,183,0.702);
 		}
+
+        .border-right {
+            border-right: 1px solid;
+            color: rgba(0,170,183,0.702);
+            margin-left: 5px;
+        }
     
     </style>
 </head>
@@ -106,27 +118,27 @@
     <div class="main-container">
         <h3 class="site--outer-titme">Your Parking Ticket Butler </h3>
         <div class="cotainer-inner">
-            <div class="detail-data payment-title"><img src="images/email.png" class="main-img">
+            <div class="detail-data payment-title"><img src=${info.imagePath} class="main-img">
                 <h4 class="site--main">Paid Receipt</h4>
                 <table class="payment-details">
-                        <tr> <td> Violation Notice Number </td><td>PB465465</td></tr>
-                        <tr> <td> Payment Amount </td><td>$12.00</td></tr>
-                        <tr> <td> Payment Date </td><td>13 September 2019</td></tr>
-                        <tr> <td> Referece Number </td><td>4564654</td></tr>
+                        <tr> <td class="td-1"> Violation Notice Number </td><td class="td-2">${info.plateNumber}</td></tr>
+                        <tr> <td class="td-1"> Payment Amount </td><td class="td-2">$${info.amount}</td></tr>
+                        <tr> <td class="td-1"> Payment Date </td><td class="td-2">${info.date}</td></tr>
+                        <tr> <td class="td-1"> Referece Number </td><td class="td-2">4564654</td></tr>
                 </table>
                 <table class="payment-details">
-                    <tr> <td> Administrative Penalty </td><td>$50.00</td></tr>
-                        <tr> <td> Address Search Fee </td><td>$12.00</td></tr>
-                        <tr> <td> Late Payment Fee </td><td>$25.00</td></tr>
-                        <tr> <td> Service Charge </td><td>$8.23</td></tr>
+                    <tr> <td class="td-1"> Administrative Penalty </td><td class="td-2">$${info.administrativePenaltyAmount}</td></tr>
+                        <tr> <td class="td-1"> Service Charge </td><td class="td-2">$${info.service}</td></tr>
                 </table>
                 <table class="payment-details">
-                    <tr><td>Total</td><td>$00.00</td></tr>
+                    <tr><td class="td-1">Total</td><td class="td-2">$${info.total}</td></tr>
                 </table>
             </div>
             <div class="cantainer-footer">
                 <p>Made in Toronto by Onebill</p>
-                <div class="condition-link"><a href="#">Privacy &amp; Terms</a><a href="#">Contact Us</a></div>
+                <div class="condition-link">
+                <a href="#" class="border-right">Privacy &amp; Terms</a>
+                <a href="#">Contact Us</a></div>
             </div>
         </div>
     </div>

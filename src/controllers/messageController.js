@@ -42,7 +42,8 @@ exports.inboundRequest = (req, res) => {
           new Promise(resolve => {
             resolve(ticketService.processTicket(s3Params, req.body.From));
           }).then(data => {
-            // info.msg = `Click on the link below to pay your ticket. ${config.server.clientUrl}/ticket-details/${data.id}`;
+              const msg = `Click on the link below to pay your ticket. ${config.clientUrl}/confirm-details/${data.id}`;
+              messageService.sendMessage(req.body.From, msg);
           })
         });
     }

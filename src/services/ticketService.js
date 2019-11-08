@@ -2,6 +2,7 @@ const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
 const AWS = require('aws-sdk');
 const config = require('config');
+const moment = require('moment');
 
 class TicketService {
     constructor() {};
@@ -91,16 +92,39 @@ class TicketService {
                             item => item.Geometry.BoundingBox.Left > 0.5 &&
                             item.Geometry.BoundingBox.Top < 0.11 &&
                             item.BlockType == 'LINE');
-                        ticketInfo.violationNoticeNumber = startList[startList.length - 1].Text;
-                        ticketInfo.dateOfViolation = this.searchValue(formData, 'date of violation');
-                        ticketInfo.plateNumber = this.searchValue(formData, 'plate');
-                        ticketInfo.administrativePenaltyAmount = this.searchValue(formData, 'amount').replace('$', '');
-                        ticketInfo.imageUrl = content.Location;
+                        try {
+                            ticketInfo.violationNoticeNumber = startList[startList.length - 1].Text;
+                        } catch (err) {
+                            ticketInfo.violationNoticeNumber = '';
+                        }
+                        try {
+                            ticketInfo.dateOfViolation = this.searchValue(formData, 'date of violation');
+                        } catch (err) {
+                            ticketInfo.dateOfViolation = moment(new Date()).format('L');;
+                        }
+                        try {
+                            ticketInfo.plateNumber = this.searchValue(formData, 'plate');
+                        } catch (err) {
+                            ticketInfo.plateNumber = '';
+                        }
+                        try {
+                            ticketInfo.administrativePenaltyAmount = this.searchValue(formData, 'amount').replace('$', '');
+                        } catch (err) {
+                            ticketInfo.administrativePenaltyAmount = 30;
+                        }
+                        try {
+                            ticketInfo.imageUrl = content.Location;
+                        } catch (err) {
+                            ticketInfo.imageUrl = '';
+                        }
+                        
                         ticketInfo.ocr = {
                             formData,
                             rawData
                         };
-                    } catch (err) {}
+                    } catch (err) {
+
+                    }
                     resolve(ticketInfo);
                 }
             });

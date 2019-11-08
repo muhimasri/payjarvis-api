@@ -3,7 +3,7 @@ const fs = require('fs');
 const mime = require('mime-types');
 const TicketService = require('../services/ticketService');
 const Ticket = require('../models/ticketModel');
-var moment = require('moment');
+const moment = require('moment');
 
 // Handle index actions
 exports.index = (req, res) => {
