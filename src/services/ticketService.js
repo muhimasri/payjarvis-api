@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const AWS = require('aws-sdk');
 const config = require('config');
 const moment = require('moment');
+const Quagga = require('quagga').default;
 
 class TicketService {
     constructor() {};
@@ -88,47 +89,86 @@ class TicketService {
 
                         // Get Key Value relationship
                         const formData = this.get_kv_relationship(key_map, value_map, block_map)
-                        const startList = data.Blocks.filter(
-                            item => item.Geometry.BoundingBox.Left > 0.5 &&
-                            item.Geometry.BoundingBox.Top < 0.11 &&
-                            item.BlockType == 'LINE');
-                        try {
-                            ticketInfo.violationNoticeNumber = startList[startList.length - 1].Text;
-                        } catch (err) {
-                            ticketInfo.violationNoticeNumber = '';
-                        }
-                        try {
-                            ticketInfo.dateOfViolation = this.searchValue(formData, 'date of violation');
-                        } catch (err) {
-                            ticketInfo.dateOfViolation = moment(new Date()).format('L');;
-                        }
-                        try {
-                            ticketInfo.plateNumber = this.searchValue(formData, 'plate');
-                        } catch (err) {
-                            ticketInfo.plateNumber = '';
-                        }
-                        try {
-                            ticketInfo.administrativePenaltyAmount = this.searchValue(formData, 'amount').replace('$', '');
-                        } catch (err) {
-                            ticketInfo.administrativePenaltyAmount = 30;
-                        }
-                        try {
-                            ticketInfo.imageUrl = content.Location;
-                        } catch (err) {
-                            ticketInfo.imageUrl = '';
-                        }
-                        
-                        ticketInfo.ocr = {
-                            formData,
-                            rawData
-                        };
+                        // const startList = data.Blocks.filter(
+                        //     item => item.Geometry.BoundingBox.Left > 0.5 &&
+                        //     item.Geometry.BoundingBox.Top < 0.11 &&
+                        //     item.BlockType == 'LINE');
+                       
+                        new Promise(resolve => {
+                            resolve(this.createTicketData(formData, content, ticketInfo));
+                        }).then(()=> {
+                            ticketInfo.ocr = {
+                                formData,
+                                rawData
+                            };
+                            resolve(ticketInfo);
+                        })
                     } catch (err) {
 
                     }
-                    resolve(ticketInfo);
                 }
             });
         });
+    }
+
+    async createTicketData(formData, content, ticketInfo) {
+        try {
+            const noticeNumber = await new Promise(resolve => {
+                Quagga.decodeSingle({
+                    src: content.Location,
+                    numOfWorkers: 0,  // Needs to be 0 when used within node
+                    inputStream: {
+                        size: 800  // restrict input-size to be 800px in width (long-side)
+                    },
+                    decoder: {
+                        readers: ["code_39_reader"] // List of active readers
+                    },
+                    locate: true
+                }, (result) => {
+                    resolve(result);
+                });
+            });
+            if(noticeNumber.codeResult) {
+                ticketInfo.violationNoticeNumber = noticeNumber.codeResult.code;
+            } else {
+                ticketInfo.violationNoticeNumber = '';
+            }
+        } catch (err) {
+            ticketInfo.violationNoticeNumber = '';
+        }
+        try {
+            ticketInfo.dateOfViolation = this.searchValue(formData, 'date of violation').trim();
+            const fDate = moment(ticketInfo.dateOfViolation, 'YYYY.MM.DD').format('L');
+            if (fDate === 'Invalid date') {
+                ticketInfo.dateOfViolation = moment(new Date()).format('L');
+            } else {
+                ticketInfo.dateOfViolation = fDate;
+            }
+        } catch (err) {
+            ticketInfo.dateOfViolation = moment(new Date()).format('L');
+        }
+        try {
+            ticketInfo.plateNumber = this.searchValue(formData, 'plate').trim();
+        } catch (err) {
+            ticketInfo.plateNumber = '';
+        }
+        try {
+            ticketInfo.administrativePenaltyAmount = this.searchValue(formData, 'amount').trim().replace('$', '');
+            if (isNaN(ticketInfo.administrativePenaltyAmount)) {
+                if (ticketInfo.administrativePenaltyAmount.indexOf('50')) {
+                    ticketInfo.administrativePenaltyAmount = 50;
+                } else {
+                    ticketInfo.administrativePenaltyAmount = 30;
+                }
+            }
+        } catch (err) {
+            ticketInfo.administrativePenaltyAmount = 30;
+        }
+        try {
+            ticketInfo.imageUrl = content.Location;
+        } catch (err) {
+            ticketInfo.imageUrl = '';
+        }
     }
 
     searchValue(form, word) {

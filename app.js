@@ -11,10 +11,10 @@ const config = require('config');
 
 let apiRoutes = require("./src/api/api-routes");
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json({limit: '100mb'}));
-app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
+// app.use(bodyParser.json())
+// app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -115,16 +115,24 @@ mongoose.connect(config.db.connectionString, {
 
 
 app.get('/', (req, res) => {
-  // const info = {
-  //   plateNumber: 1,
-  //   amount: 1,
-  //   date: moment(new Date()).format('MMMM Do YYYY'),
-  //   administrativePenaltyAmount: 1,
-  //   service: 1,
-  //   total: 1,
-  //   imagePath: "\"http://teacherstudio.me/assets/images/email.png\""
-  // };
-  // sendEmail(info, 'muhimasri@gmail.com')
+  // var Quagga = require('quagga').default;
+  // Quagga.decodeSingle({
+  //   src: 'https://livecords-dev.s3.amazonaws.com/1573328446167.jpg',
+  //   numOfWorkers: 0,  // Needs to be 0 when used within node
+  //   inputStream: {
+  //       size: 800  // restrict input-size to be 800px in width (long-side)
+  //   },
+  //   decoder: {
+  //       readers: ["code_39_reader"] // List of active readers
+  //   },
+  //   locate: true
+  // }, function(result){
+  //     if(result.codeResult) {
+  //         console.log("result", result.codeResult.code);
+  //     } else {
+  //         console.log("not detected");
+  //     }
+  // });
   res.json('HEYYYYYY');
 });
 
