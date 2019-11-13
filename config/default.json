@@ -1,5 +1,5 @@
 {
-    "clientUrl": "http://teacherstudio.me",
+    "clientUrl": "https://payjarvis.com",
     "db": {
         "connectionString": "mongodb+srv://muhi:muhiatlasadmin@cluster0-qyxst.mongodb.net/PayJarvis?retryWrites=true&w=majority"
       },
@@ -8,7 +8,8 @@
         "authToken": "e0240d7a4475c858a2444f6603e4a855"
     },
     "stripe": {
-        "secretKey": "sk_test_vcIq251ToWrYVdE8bBJRLGYe"
+        "secretKey": "sk_test_vcIq251ToWrYVdE8bBJRLGYe",
+        "secretKeyProd": "sk_live_gMAYxz1RlipcJ8nwJuKnTVwW"
     },
     "aws": {
         "accessKey": "AKIAIOEJLUFH6IQ5H66A",

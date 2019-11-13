@@ -14,9 +14,10 @@ class TicketService {
             secretAccessKey: config.aws.secretAccessKey,
         });
         return new Promise(resolve => {
-            s3.upload(params, function (s3Err, data) {
-                if (s3Err) {
-                    resolve(s3Err);
+            s3.upload(params, (err, data) => {
+                if (err) {
+                    console.error(err);
+                    resolve(err);
                 } else {
                     resolve(data)
                 }
@@ -31,7 +32,13 @@ class TicketService {
                 newUser.phone = phone;
             }
             newUser.save((err, res) => {
-                resolve(res.id);
+                if (err) {
+                    console.error(err);
+                    resolve(err);
+                } else {
+                    resolve(res.id);
+                }
+                
             })
         });
     }
@@ -46,13 +53,18 @@ class TicketService {
     async saveTicket(ticketInfo) {
         return new Promise(resolve => {
             ticketInfo.save((err, res) => {
-                resolve(res);
+                if (err) {
+                    console.error(err);
+                    resolve(err);
+                } else {
+                    resolve(res);
+                }
             })
         });
     }
 
     async documentExtract(content) {
-        return new Promise(resolve => {
+        const docObj = await new Promise(resolve => {
             var textract = new AWS.Textract({
                 region: config.aws.region,
                 endpoint: 'https://textract.us-west-2.amazonaws.com/',
@@ -61,7 +73,6 @@ class TicketService {
             });
             var params = {
                 Document: {
-                    // Bytes: Buffer.from(fileContent) // || 'STRING_VALUE' /* Strings will be Base-64 encoded on your behalf */,
                     S3Object: {
                         Bucket: config.aws.bucket,
                         Name: content.Key
@@ -74,7 +85,6 @@ class TicketService {
                 if (err) {
                     return resolve(err);
                 } else {
-                    let ticketInfo = new Ticket();
                     let rawData = data.Blocks.map(item => {
                         if (item.BlockType.toLowerCase() === 'line' && item.Text !== null) {
                             return item.Text;
@@ -93,21 +103,22 @@ class TicketService {
                         //     item => item.Geometry.BoundingBox.Left > 0.5 &&
                         //     item.Geometry.BoundingBox.Top < 0.11 &&
                         //     item.BlockType == 'LINE');
-                       
-                        new Promise(resolve => {
-                            resolve(this.createTicketData(formData, content, ticketInfo));
-                        }).then(()=> {
-                            ticketInfo.ocr = {
-                                formData,
-                                rawData
-                            };
-                            resolve(ticketInfo);
-                        })
+                       resolve({formData, rawData});
                     } catch (err) {
-
+                        console.error(err);
                     }
                 }
             });
+        });
+
+        let ticketInfo = new Ticket();
+        await this.createTicketData(docObj.formData, content, ticketInfo);
+        ticketInfo.ocr = {
+            formData: docObj.formData,
+            rawData: docObj.rawData
+        };
+        return new Promise(resolve => {
+            resolve(ticketInfo);
         });
     }
 
@@ -161,6 +172,9 @@ class TicketService {
                     ticketInfo.administrativePenaltyAmount = 30;
                 }
             }
+            if (ticketInfo.administrativePenaltyAmount === null) {
+                ticketInfo.administrativePenaltyAmount = 30;
+            }
         } catch (err) {
             ticketInfo.administrativePenaltyAmount = 30;
         }
@@ -169,31 +183,42 @@ class TicketService {
         } catch (err) {
             ticketInfo.imageUrl = '';
         }
+        return new Promise(resolve => {
+            resolve(true);
+        });
     }
 
     searchValue(form, word) {
-        for (const key in form) {
-            if (key.toLowerCase().indexOf(word) > -1) {
-                return form[key];
+        try {
+            for (const key in form) {
+                if (key.toLowerCase().indexOf(word) > -1) {
+                    return form[key];
+                }
             }
+        } catch (err) {
+            console.error(err);
         }
         return '';
     }
 
     get_kv_map(blocks) {
         // get key and value maps
-        const key_map = {};
-        const value_map = {};
-        const block_map = {};
-        for (const block of blocks) {
-            const block_id = block['Id'];
-            block_map[block_id] = block;
-            if (block['BlockType'] == "KEY_VALUE_SET") {
-                if (block['EntityTypes'].includes('KEY'))
-                    key_map[block_id] = block;
-                else
-                    value_map[block_id] = block;
+        let key_map = {};
+        let value_map = {};
+        let block_map = {};
+        try {
+            for (const block of blocks) {
+                const block_id = block['Id'];
+                block_map[block_id] = block;
+                if (block['BlockType'] == "KEY_VALUE_SET") {
+                    if (block['EntityTypes'].includes('KEY'))
+                        key_map[block_id] = block;
+                    else
+                        value_map[block_id] = block;
+                }
             }
+        } catch (err) {
+            console.log(err);
         }
         return {
             key_map,
@@ -203,44 +228,52 @@ class TicketService {
     }
 
     get_kv_relationship(key_map, value_map, block_map) {
-        const kvs = {}
-        for (const key_block in key_map) {
-            const value_block = this.find_value_block(key_map[key_block], value_map)
-            let key = this.get_text(key_map[key_block], block_map)
-            const val = this.get_text(value_block, block_map)
-            if (key.indexOf('.') > -1) {
-                key = key.split('.').join('');
+        let kvs = {}
+        try {
+            for (const key_block in key_map) {
+                const value_block = this.find_value_block(key_map[key_block], value_map)
+                let key = this.get_text(key_map[key_block], block_map)
+                const val = this.get_text(value_block, block_map)
+                if (key.indexOf('.') > -1) {
+                    key = key.split('.').join('');
+                }
+                kvs[key] = val;
             }
-            kvs[key] = val;
+        } catch (err) {
+            console.error(err);
         }
         return kvs
     }
 
     get_text(result, blocks_map) {
         let text = '';
-        if (result['Relationships']) {
-            for (const relationship of result['Relationships']) {
-                if (relationship['Type'] == 'CHILD') {
-                    for (const child_id of relationship['Ids']) {
-                        const word = blocks_map[child_id]
-                        if (word['BlockType'] == 'WORD') {
-                            text = text + word['Text'] + ' ';
-                        }
-                        if (word['BlockType'] == 'SELECTION_ELEMENT') {
-                            if (word['SelectionStatus'] == 'SELECTED') {
-                                text = text + 'X ';
+        try {
+            if (result['Relationships']) {
+                for (const relationship of result['Relationships']) {
+                    if (relationship['Type'] == 'CHILD') {
+                        for (const child_id of relationship['Ids']) {
+                            const word = blocks_map[child_id]
+                            if (word['BlockType'] == 'WORD') {
+                                text = text + word['Text'] + ' ';
+                            }
+                            if (word['BlockType'] == 'SELECTION_ELEMENT') {
+                                if (word['SelectionStatus'] == 'SELECTED') {
+                                    text = text + 'X ';
+                                }
                             }
                         }
                     }
                 }
             }
+        } catch (err) {
+            console.error(err);
         }
-        return text
+        return text;
     }
 
     find_value_block(key_block, value_map) {
+        let value_block = null;
         try {
-            let value_block = null;
             for (const relationship of key_block['Relationships']) {
                 if (relationship['Type'] == 'VALUE') {
                     for (const value_id of relationship['Ids']) {
@@ -248,10 +281,10 @@ class TicketService {
                     }
                 }
             }
-            return value_block;
         } catch(err) {
             console.error(err);
         }
+        return value_block;
     }
 }
 

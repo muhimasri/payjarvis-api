@@ -62,7 +62,6 @@ exports.new = function (req, res) {
 // Handle view ticket info
 exports.view = function (req, res) {
     Ticket.findById(req.params.ticketId, function (err, ticket) {
-        moment()
         if (err)
             res.send(err);
         res.json({
