@@ -112,7 +112,7 @@ class TicketService {
         });
 
         let ticketInfo = new Ticket();
-        await this.createTicketData(docObj.formData, content, ticketInfo);
+        await this.createTicketData(docObj.formData, content, ticketInfo, docObj.rawData);
         ticketInfo.ocr = {
             formData: docObj.formData,
             rawData: docObj.rawData
@@ -122,7 +122,26 @@ class TicketService {
         });
     }
 
-    async createTicketData(formData, content, ticketInfo) {
+    findNoticeViolationNumber(list) {
+        try {
+            const number = list.find(item => typeof item !== 'undefined' && item !== null && isNaN(item) && item.trim().length === 8);
+            if (isNaN(number.charAt(0)) &&
+                isNaN(number.charAt(1)) &&
+                !isNaN(number.charAt(2)) &&
+                !isNaN(number.charAt(3)) &&
+                !isNaN(number.charAt(4)) &&
+                !isNaN(number.charAt(5)) &&
+                !isNaN(number.charAt(6)) &&
+                !isNaN(number.charAt(7))) {
+                    return number;
+                }
+        } catch (err) {
+            console.error(err);
+        }
+        return '';
+    }
+
+    async createTicketData(formData, content, ticketInfo, rawData) {
         try {
             const noticeNumber = await new Promise(resolve => {
                 Quagga.decodeSingle({
@@ -140,23 +159,24 @@ class TicketService {
                 });
             });
             if(noticeNumber.codeResult) {
+                // ticketInfo.violationNoticeNumber = this.findNoticeViolationNumber(rawData);
                 ticketInfo.violationNoticeNumber = noticeNumber.codeResult.code;
             } else {
-                ticketInfo.violationNoticeNumber = '';
+                ticketInfo.violationNoticeNumber = this.findNoticeViolationNumber(rawData);
             }
         } catch (err) {
-            ticketInfo.violationNoticeNumber = '';
+            ticketInfo.violationNoticeNumber = this.findNoticeViolationNumber(rawData);
         }
         try {
             ticketInfo.dateOfViolation = this.searchValue(formData, 'date of violation').trim();
-            const fDate = moment(ticketInfo.dateOfViolation, 'YYYY.MM.DD').format('L');
+            const fDate = moment(ticketInfo.dateOfViolation).format('YYYY-MM-DD');
             if (fDate === 'Invalid date') {
-                ticketInfo.dateOfViolation = moment(new Date()).format('L');
+                ticketInfo.dateOfViolation = moment(new Date()).format('YYYY-MM-DD');
             } else {
                 ticketInfo.dateOfViolation = fDate;
             }
         } catch (err) {
-            ticketInfo.dateOfViolation = moment(new Date()).format('L');
+            ticketInfo.dateOfViolation = moment(new Date()).format('YYYY-MM-DD');
         }
         try {
             ticketInfo.plateNumber = this.searchValue(formData, 'plate').trim();
@@ -172,7 +192,7 @@ class TicketService {
                     ticketInfo.administrativePenaltyAmount = 30;
                 }
             }
-            if (ticketInfo.administrativePenaltyAmount === null) {
+            if (ticketInfo.administrativePenaltyAmount === null || ticketInfo.administrativePenaltyAmount === 0) {
                 ticketInfo.administrativePenaltyAmount = 30;
             }
         } catch (err) {

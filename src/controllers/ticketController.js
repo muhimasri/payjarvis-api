@@ -68,7 +68,7 @@ exports.view = function (req, res) {
             success: 'ticket details loading..',
             data: {
                 administrativePenaltyAmount: formatNumber(ticket.administrativePenaltyAmount),
-                dateOfViolation: ticket.dateOfViolation,
+                dateOfViolation: moment(ticket.dateOfViolation).format('YYYY-MM-DD'),
                 imageUrl: ticket.imageUrl,
                 plateNumber: ticket.plateNumber,
                 violationNoticeNumber: ticket.violationNoticeNumber,

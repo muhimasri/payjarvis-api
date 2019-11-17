@@ -1,5 +1,6 @@
 const MessageModel = require('../models/messageModel');
 const config = require('config');
+const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
 
 class MessageService {
     constructor() {};
@@ -14,13 +15,12 @@ class MessageService {
     }
 
     sendMessage(to, msg) {
-        const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
-    
         client.messages
           .create({
             body: msg,
-            from: '+16475575147',
-            to: to
+            messagingServiceSid: config.twilio.messagingServiceSid,
+            from: config.twilio.phoneNumber,
+            to
           })
           .then(message => console.log(message.sid));
       }

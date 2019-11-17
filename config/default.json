@@ -5,10 +5,12 @@
       },
     "twilio": {
         "accountSid": "ACf7732ee502fa7f4d27120927f0d8857a",
-        "authToken": "e0240d7a4475c858a2444f6603e4a855"
+        "authToken": "e0240d7a4475c858a2444f6603e4a855",
+        "messagingServiceSid": "MGf0aa922df826ea0e633f75b5452fb9ec",
+        "phoneNumber": "+16475575147"
     },
     "stripe": {
-        "secretKey": "sk_test_vcIq251ToWrYVdE8bBJRLGYe",
+        "secretKey": "sk_test_p4HrwhNxxgoLWpaWM84RGuPg00rj4E3nTD",
         "secretKeyProd": "sk_live_gMAYxz1RlipcJ8nwJuKnTVwW"
     },
     "aws": {

@@ -42,10 +42,18 @@ exports.inboundRequest = (req, res) => {
           new Promise(resolve => {
             resolve(ticketService.processTicket(s3Params, req.body.From));
           }).then(data => {
-              const msg = `Click on the link below to pay your ticket. ${config.clientUrl}/confirm-details/${data.id}`;
+              const msg = 'Hi it’s Jarvis 👋,\n\n' +
+              'I’ll help you get this parking ticket paid, here is a form with your ticket info.\n\n' +
+              `${config.clientUrl}/confirm-details/${data.id}` + '\n\n' +
+              '🏗 Made in Toronto';
               messageService.sendMessage(req.body.From, msg);
           })
         });
+    } else {
+        const msg = 'Hi it’s Jarvis 👋,\n\n' +
+        'This is an automated service to pay for parking tickets in Toronto. You can start by sending us a photo of your parking ticket.\n\n' +
+        '🏗 Made in Toronto';
+        messageService.sendMessage(req.body.From, msg);
     }
     res.status(200).end();
 };
