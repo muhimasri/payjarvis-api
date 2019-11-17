@@ -67,7 +67,7 @@ exports.view = function (req, res) {
         res.json({
             success: 'ticket details loading..',
             data: {
-                administrativePenaltyAmount: formatNumber(ticket.administrativePenaltyAmount),
+                administrativePenaltyAmount: ticket.administrativePenaltyAmount,
                 dateOfViolation: moment(ticket.dateOfViolation).format('YYYY-MM-DD'),
                 imageUrl: ticket.imageUrl,
                 plateNumber: ticket.plateNumber,
@@ -78,7 +78,11 @@ exports.view = function (req, res) {
                 paidDate: ticket.paymentDetails ? moment(new Date(ticket.paymentDetails.created * 1000))
                 .format('MMMM Do YYYY') : null,
                 paidAmount: ticket.paymentDetails ? Number(ticket.paymentDetails.amount/100).toFixed(2) : null,
-                userId: ticket.userId
+                userId: ticket.userId,
+                lateFee: ticket.lateFee,
+                addressSearchFee: ticket.addressSearchFee,
+                processingFee: ticket.processingFee,
+                totalAmount: ticket.totalAmount
             }
         });
     });
@@ -96,7 +100,11 @@ exports.update = function (req, res) {
         administrativePenaltyAmount: true,
         dateOfViolation: true,
         plateNumber: true,
-        violationNoticeNumber: true
+        violationNoticeNumber: true,
+        addressSearchFee: true,
+        lateFee: true,
+        processingFee: true,
+        totalAmount: true
     }
     const updateObj = {};
     for (const key in req.body) {
@@ -118,7 +126,11 @@ exports.update = function (req, res) {
                     violationNoticeNumber: ticket.violationNoticeNumber,
                     ticketId: ticket._id,
                     email: '',
-                    isPaid: false
+                    isPaid: false,
+                    lateFee: ticket.lateFee,
+                    addressSearchFee: ticket.addressSearchFee,
+                    processingFee: ticket.processingFee,
+                    totalAmount: ticket.totalAmount
                     }
             });
     });

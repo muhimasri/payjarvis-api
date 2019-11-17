@@ -125,7 +125,17 @@ class TicketService {
     findNoticeViolationNumber(list) {
         try {
             const number = list.find(item => typeof item !== 'undefined' && item !== null && isNaN(item) && item.trim().length === 8);
-            if (isNaN(number.charAt(0)) &&
+            if (this.isValidNoticeViolationNumber(number)) {
+                    return number;
+                }
+        } catch (err) {
+            console.error(err);
+        }
+        return '';
+    }
+
+    isValidNoticeViolationNumber(number) {
+        if (isNaN(number.charAt(0)) &&
                 isNaN(number.charAt(1)) &&
                 !isNaN(number.charAt(2)) &&
                 !isNaN(number.charAt(3)) &&
@@ -133,12 +143,9 @@ class TicketService {
                 !isNaN(number.charAt(5)) &&
                 !isNaN(number.charAt(6)) &&
                 !isNaN(number.charAt(7))) {
-                    return number;
+                    return true;
                 }
-        } catch (err) {
-            console.error(err);
-        }
-        return '';
+        return false;
     }
 
     async createTicketData(formData, content, ticketInfo, rawData) {
@@ -158,8 +165,7 @@ class TicketService {
                     resolve(result);
                 });
             });
-            if(noticeNumber.codeResult) {
-                // ticketInfo.violationNoticeNumber = this.findNoticeViolationNumber(rawData);
+            if(noticeNumber.codeResult && this.isValidNoticeViolationNumber(noticeNumber.codeResult.code)) {
                 ticketInfo.violationNoticeNumber = noticeNumber.codeResult.code;
             } else {
                 ticketInfo.violationNoticeNumber = this.findNoticeViolationNumber(rawData);

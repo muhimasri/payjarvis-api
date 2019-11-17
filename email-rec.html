@@ -119,21 +119,29 @@
                <table class="payment-details">
                    <tr>
                      <td class="td-1">Payment Date </td>
-                     <td class="td-2">${info.date}</td>
+                     <td class="td-2">${info.dateOfViolation}</td>
                   </tr>
                   <tr>
                      <td class="td-1">Administrative Penalty </td>
                      <td class="td-2">$${info.administrativePenaltyAmount}</td>
                   </tr>
+                  ${
+                    info.addressSearchFee !== 0 ?
+                    addressSearchFeeSection
+                  : ''}
+                  ${
+                    info.lateFee !== 0 ?
+                    lateFeeSection
+                  : ''}
                   <tr>
                      <td class="td-1">Processing Fees </td>
-                     <td class="td-2">$${info.service}</td>
+                     <td class="td-2">$${info.processingFee}</td>
                   </tr>
                </table>
                <table class="payment-details">
                   <tr>
                      <td class="td-1">Total Amount</td>
-                     <td class="td-2">$${info.total}</td>
+                     <td class="td-2">$${info.totalAmount}</td>
                   </tr>
                </table>
             </div>
