@@ -1,7 +1,7 @@
 {
     "clientUrl": "https://payjarvis.com",
     "db": {
-        "connectionString": "mongodb+srv://muhi:muhiatlasadmin@cluster0-qyxst.mongodb.net/PayJarvis?retryWrites=true&w=majority"
+        "connectionString": "mongodb+srv://db_admin:PiRQsI2Hhv21CNwC@cluster0-ghllq.mongodb.net/payjarvis?retryWrites=true&w=majority"
       },
     "twilio": {
         "accountSid": "ACf7732ee502fa7f4d27120927f0d8857a",
