@@ -124,10 +124,13 @@ class TicketService {
 
     findNoticeViolationNumber(list) {
         try {
-            const number = list.find(item => typeof item !== 'undefined' && item !== null && isNaN(item) && item.trim().length === 8);
-            if (this.isValidNoticeViolationNumber(number)) {
-                    return number;
-                }
+            const numbers = list.filter(item => typeof item !== 'undefined' && item !== null && isNaN(item) && item.trim().length === 8);
+            const number = numbers.find(item => this.isValidNoticeViolationNumber(item));
+            if (typeof number === 'undefined') {
+                return '';
+            } else {
+                return number;
+            }
         } catch (err) {
             console.error(err);
         }
@@ -165,7 +168,7 @@ class TicketService {
                     resolve(result);
                 });
             });
-            if(noticeNumber.codeResult && this.isValidNoticeViolationNumber(noticeNumber.codeResult.code)) {
+            if(noticeNumber && noticeNumber.codeResult && this.isValidNoticeViolationNumber(noticeNumber.codeResult.code)) {
                 ticketInfo.violationNoticeNumber = noticeNumber.codeResult.code;
             } else {
                 ticketInfo.violationNoticeNumber = this.findNoticeViolationNumber(rawData);

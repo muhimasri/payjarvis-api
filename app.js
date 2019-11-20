@@ -125,24 +125,24 @@ mongoose.connect(config.db.connectionString, {
 
 
 app.get('/', (req, res) => {
-  res.json('HEYYYYYY');
-  sendEmail( {
-    "administrativePenaltyAmount": 50,
-    "dateOfViolation": "2019-10-07",
-    "imageUrl": "https://livecords-dev.s3.us-west-2.amazonaws.com/1573997518570.jpg",
-    "plateNumber": "CJAI 1524",
-    "violationNoticeNumber": "PB322434",
-    "ticketId": "5dd14bd10333f526b4625083",
-    "email": "",
-    "isPaid": true,
-    "paidDate": "November 17th 2019",
-    "paidAmount": "87.00",
-    "userId": "5dd14bd30333f526b4625084",
-    "lateFee": 25,
-    "addressSearchFee": 12,
-    "processingFee": 8.7,
-    "totalAmount": 87
-  }, 'muhimasri@gmail.com');
+  res.json('Payjarvis API');
+  // sendEmail( {
+  //   "administrativePenaltyAmount": 50,
+  //   "dateOfViolation": "2019-10-07",
+  //   "imageUrl": "https://livecords-dev.s3.us-west-2.amazonaws.com/1573997518570.jpg",
+  //   "plateNumber": "CJAI 1524",
+  //   "violationNoticeNumber": "PB322434",
+  //   "ticketId": "5dd14bd10333f526b4625083",
+  //   "email": "",
+  //   "isPaid": true,
+  //   "paidDate": "November 17th 2019",
+  //   "paidAmount": "87.00",
+  //   "userId": "5dd14bd30333f526b4625084",
+  //   "lateFee": 25,
+  //   "addressSearchFee": 12,
+  //   "processingFee": 8.7,
+  //   "totalAmount": 87
+  // }, 'muhimasri@gmail.com');
 });
 
 // Use Api routes in the App
