@@ -4,6 +4,7 @@ const mime = require('mime-types');
 const TicketService = require('../services/ticketService');
 const Ticket = require('../models/ticketModel');
 const moment = require('moment');
+const config = require('config');
 
 // Handle index actions
 exports.index = (req, res) => {
@@ -33,7 +34,7 @@ exports.new = function (req, res) {
         const mimeType = mime.contentType(file.type);
         const ext = file.name.split('.')[file.name.split('.').length - 1];
         s3Params = {
-            Bucket: 'livecords-dev',
+            Bucket: config.aws.bucket,
             Key: Date.now().toString() + '.' + ext,
             Body: fileContent,
             ContentType: mimeType,
