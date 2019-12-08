@@ -1,7 +1,6 @@
 const Ticket = require('../models/ticketModel');
 const User = require('../models/userModel');
 const AWS = require('aws-sdk');
-const config = require('config');
 const moment = require('moment');
 const Quagga = require('quagga').default;
 
@@ -10,8 +9,8 @@ class TicketService {
 
     async s3Upload(params) {
         const s3 = new AWS.S3({
-            accessKeyId: config.aws.accessKey,
-            secretAccessKey: config.aws.secretAccessKey,
+            accessKeyId: process.env.AWS_ACCESS_KEY,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
         return new Promise(resolve => {
             s3.upload(params, (err, data) => {
@@ -66,15 +65,15 @@ class TicketService {
     async documentExtract(content) {
         const docObj = await new Promise(resolve => {
             var textract = new AWS.Textract({
-                region: config.aws.region,
+                region: process.env.AWS_REGION,
                 endpoint: 'https://textract.us-west-2.amazonaws.com/',
-                accessKeyId: config.aws.accessKey,
-                secretAccessKey: config.aws.secretAccessKey
+                accessKeyId: process.env.AWS_ACCESS_KEY,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
             });
             var params = {
                 Document: {
                     S3Object: {
-                        Bucket: config.aws.bucket,
+                        Bucket: process.env.AWS_S3_BUCKET,
                         Name: content.Key
                     }
                 },
@@ -193,16 +192,24 @@ class TicketService {
             ticketInfo.plateNumber = '';
         }
         try {
-            ticketInfo.administrativePenaltyAmount = this.searchValue(formData, 'amount').trim().replace('$', '');
-            if (isNaN(ticketInfo.administrativePenaltyAmount)) {
-                if (ticketInfo.administrativePenaltyAmount.indexOf('50')) {
+            const penaltyAmount = this.searchValue(formData, 'penalty amount:').trim().replace('$', '');
+            if (isNaN(penaltyAmount)) {
+                if (penaltyAmount.indexOf('250') > -1) {
+                    ticketInfo.administrativePenaltyAmount = 250;
+                } else if (penaltyAmount.indexOf('100') > -1) {
+                    ticketInfo.administrativePenaltyAmount = 100;
+                } else if (penaltyAmount.indexOf('50') > -1) {
                     ticketInfo.administrativePenaltyAmount = 50;
-                } else {
+                } else if (penaltyAmount.indexOf('40') > -1) {
+                    ticketInfo.administrativePenaltyAmount = 40;
+                } 
+                else {
                     ticketInfo.administrativePenaltyAmount = 30;
                 }
-            }
-            if (ticketInfo.administrativePenaltyAmount === null || ticketInfo.administrativePenaltyAmount === 0) {
+            } else if (penaltyAmount === null || penaltyAmount === 0 || penaltyAmount === '') {
                 ticketInfo.administrativePenaltyAmount = 30;
+            } else {
+                ticketInfo.administrativePenaltyAmount = penaltyAmount;
             }
         } catch (err) {
             ticketInfo.administrativePenaltyAmount = 30;

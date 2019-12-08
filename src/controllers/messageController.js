@@ -2,7 +2,6 @@ const Message = require('../models/messageModel');
 const MessageService = require('../services/messageService');
 const TicketService = require('../services/ticketService');
 var request = require('request').defaults({ encoding: null });
-const config = require('config');
 
 // Handle index actions
 exports.index = (req, res) => {
@@ -33,7 +32,7 @@ exports.inboundRequest = (req, res) => {
         request.get(req.body.MediaUrl0,
         (err, res, body) => {
             const s3Params = {
-              Bucket: config.aws.bucket,
+              Bucket: process.env.AWS_S3_BUCKET,
               Key: Date.now().toString() + '.jpg',
               Body: body,
               ContentType: 'image/jpeg',
@@ -44,7 +43,7 @@ exports.inboundRequest = (req, res) => {
           }).then(data => {
               const msg = 'Hi it’s Jarvis 👋,\n\n' +
               'I’ll help you get this parking ticket paid, here is a form with your ticket info.\n\n' +
-              `${config.clientUrl}/confirm-details/${data.id}` + '\n\n' +
+              `${process.env.CLIENT_DOMAIN}/confirm-details/${data.id}` + '\n\n' +
               '🏗 Made in Toronto';
               messageService.sendMessage(req.body.From, msg);
           })

@@ -5,9 +5,10 @@ const app = express();
 const mongoose = require('mongoose');
 const moment = require('moment');
 const port = process.env.PORT || 3000;
+const fetch = require('node-fetch');
 
-const config = require('config');
-
+const dotenv = require('dotenv');
+dotenv.config();
 
 let apiRoutes = require("./src/api/api-routes");
 
@@ -23,7 +24,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-mongoose.connect(config.db.connectionString, {
+mongoose.connect(process.env.DB_CONNECTION_STRING, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 })
@@ -32,7 +33,7 @@ mongoose.connect(config.db.connectionString, {
   console.log(`DB Connection Error: ${err.message}`);
 });
 
-  const stripe = require("stripe")(config.stripe.secretKey); 
+  const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); 
   app.post("/charge", async (req, res) => {
     try {
       const totalAmount = req.body.amount;  
@@ -126,6 +127,9 @@ mongoose.connect(config.db.connectionString, {
 
 app.get('/', (req, res) => {
   res.json('Payjarvis API');
+  fetch('https://secure.toronto.ca/cc_api/svcaccount_v1/ParkingTicket/view?json=%7B%22TICKET%22%3A%22PB615336%22%2C%22PLATE_NUMBER%22%3A%22BWCM775%22%7D')
+    .then(res => res.json())
+    .then(json => console.log(json));
   // sendEmail( {
   //   "administrativePenaltyAmount": 50,
   //   "dateOfViolation": "2019-10-07",
